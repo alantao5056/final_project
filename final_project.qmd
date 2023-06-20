@@ -1,0 +1,58 @@
+---
+title: "final_project"
+format: html
+execute:
+  echo: FALSE
+---
+
+```{r}
+#| message: FALSE
+library(tidyverse)
+library(janitor)
+```
+
+
+```{r}
+temp = read.csv("data/temperature_change.csv", fileEncoding="latin1") %>% clean_names()
+carbon = read.csv("data/carbon_dioxide_emissions.csv") %>% clean_names()
+methane = read.csv("data/methane_emissions.csv") %>% clean_names()
+```
+
+```{r}
+
+temp %>%
+  select(area, months, element, y1990:y2018) %>%
+  pivot_longer(cols = y1990:y2018,
+               names_prefix = "y",
+               names_to = "year",
+               values_to = "value")
+
+```
+
+```{r}
+carbon %>%
+  select(country, x2018:x1990) %>%
+  mutate(x1990 = na_if(x1990, "N/A")) %>%
+  drop_na() %>%
+  transform(x1990 = as.numeric(x1990)) %>%
+  pivot_longer(cols = x1990:x2018,
+               names_prefix = "x",
+               names_to = "year",
+               values_to = "value") %>%
+  arrange(country)
+```
+
+```{r}
+methane %>%
+  select(country, x2018:x1990) %>%
+  mutate(x1990 = na_if(x1990, "N/A")) %>%
+  drop_na() %>%
+  transform(x1990 = as.numeric(x1990)) %>%
+  pivot_longer(cols = x1990:x2018,
+               names_prefix = "x",
+               names_to = "year",
+               values_to = "value") %>%
+  arrange(country)
+```
+
+
