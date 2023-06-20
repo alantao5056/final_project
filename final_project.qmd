@@ -25,7 +25,10 @@ temp %>%
   pivot_longer(cols = y1990:y2018,
                names_prefix = "y",
                names_to = "year",
-               values_to = "value")
+               values_to = "value") %>%
+  filter(element == "Temperature change") %>%
+  rename("country"="area") %>%
+  summarize("temperature change" = sum(value), .by = c(country, year))
 
 ```
 
@@ -38,7 +41,7 @@ carbon %>%
   pivot_longer(cols = x1990:x2018,
                names_prefix = "x",
                names_to = "year",
-               values_to = "value") %>%
+               values_to = "carbon_dioxide_emissions") %>%
   arrange(country)
 ```
 
@@ -51,7 +54,7 @@ methane %>%
   pivot_longer(cols = x1990:x2018,
                names_prefix = "x",
                names_to = "year",
-               values_to = "value") %>%
+               values_to = "methane_emissions") %>%
   arrange(country)
 ```
 
