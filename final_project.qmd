@@ -3,12 +3,14 @@ title: "final_project"
 format: html
 execute:
   echo: FALSE
+  message: FALSE
 ---
 
 ```{r}
 #| message: FALSE
 library(tidyverse)
 library(janitor)
+library(scales)
 ```
 
 
@@ -20,7 +22,7 @@ methane = read.csv("data/methane_emissions.csv") %>% clean_names()
 
 ```{r}
 
-temp %>%
+temp2=temp %>%
   select(area, months, element, y1990:y2018) %>%
   pivot_longer(cols = y1990:y2018,
                names_prefix = "y",
@@ -28,12 +30,12 @@ temp %>%
                values_to = "value") %>%
   filter(element == "Temperature change") %>%
   rename("country"="area") %>%
-  summarize("temperature change" = sum(value), .by = c(country, year))
+  summarize("temperature_change" = sum(value), .by = c(country, year))
 
 ```
 
 ```{r}
-carbon %>%
+carbon2=carbon %>%
   select(country, x2018:x1990) %>%
   mutate(x1990 = na_if(x1990, "N/A")) %>%
   drop_na() %>%
@@ -46,7 +48,7 @@ carbon %>%
 ```
 
 ```{r}
-methane %>%
+methane2=methane %>%
   select(country, x2018:x1990) %>%
   mutate(x1990 = na_if(x1990, "N/A")) %>%
   drop_na() %>%
@@ -58,4 +60,36 @@ methane %>%
   arrange(country)
 ```
 
+```{r}
+joined = full_join(temp2, carbon2) %>%
+  full_join(methane2) %>%
+  filter(country != "World")
+# joined
+```
+
+``` {r}
+# joined
+joined %>%
+  summarize("carbon_dioxide_emissions_sum" = sum(carbon_dioxide_emissions, na.rm = TRUE),
+            .by=year) %>%
+  ggplot(aes(x=year,
+             y=carbon_dioxide_emissions_sum,
+             group=1)) +
+  scale_y_continuous(label=comma, breaks=c(50000,
+                                           100000,
+                                           150000,
+                                           200000,
+                                           250000,
+                                           300000,
+                                           350000,
+                                           400000), limits=c(0, 400000)) +
+  geom_point() +
+  geom_line()+
+  theme_bw() +
+  theme(axis.text.x = element_text(angle=45, hjust=1)) +
+  labs(x="Carbon Dioxide Emissions",
+       y="Year",
+       title="Carbon Dioxide Emissions As Time Goes On",
+       subtitle="carbon dioxide increases as time goes on")
+```
 
